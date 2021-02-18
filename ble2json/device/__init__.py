@@ -68,9 +68,11 @@ def get_one(name, start, end):
 def get_sensor_data(dev_id, start, end):
     if not start and not end:
         return ruuvi5.get_latest(dev_id)
-    elif not start and end:
+
+    if not start or start == "epoch":
         start = "1970-01-01T00:00:00Z"
-    elif start and not end:
+        
+    if not end or end == "now":
         end = datetime.now().isoformat(timespec="seconds")
 
     return ruuvi5.get_interval(dev_id, start, end)
