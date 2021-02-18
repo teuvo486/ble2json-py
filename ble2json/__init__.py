@@ -11,9 +11,7 @@ def create_app():
     except OSError:
         pass
 
-    app.config.from_mapping(PERSISTENT=False)
-
-    app.config.from_json("config.json", silent=True)
+    app.config.from_json("config.json")
 
     if app.config["PERSISTENT"]:
         app.config["DB_PATH"] = app.instance_path + "/ble2json.db"

@@ -1,24 +1,21 @@
 import struct
 from time import time
 from ble2json import db
-from .util import clamp, field
+from .util import clamp, field, sign_and_magnitude
 
-FMT = ">BhHHhhhHBHBBBBBB"
+FMT = ">BBBBHhhhH"
 
 
 def from_bytes(buf):
     t = struct.unpack(FMT, buf)
     return (
-        field(t[1], -32767, lambda v: v * 0.005),
-        field(t[2], 40000, lambda v: v * 0.0025),
-        field(t[3], 65534, lambda v: v + 50000),
-        field(t[4], -32767, lambda v: v * 0.001),
+        field(t[1], 200, lambda v: v * 0.5),
+        sign_and_magnitude(t[2], t[3]),
+        field(t[4], 65534, lambda v: v + 50000),
         field(t[5], -32767, lambda v: v * 0.001),
         field(t[6], -32767, lambda v: v * 0.001),
-        field(t[7] >> 5, 2046, lambda v: v * 0.001 + 1.6),
-        field(t[7] & 0x1F, 30, lambda v: v * 2 - 40),
-        clamp(t[8], 254),
-        clamp(t[9], 65534),
+        field(t[7], -32767, lambda v: v * 0.001),
+        field(t[8], 3646, lambda v: v * 0.001),
     )
 
 
@@ -37,18 +34,15 @@ def insert(db_path, obj_path, rawdata):
         """INSERT INTO data (
                 device_id,
                 time,
-                temperature,
                 humidity,
+                temperature,               
                 pressure,
                 acceleration_x,
                 acceleration_y,
                 acceleration_z,
-                voltage,
-                tx_power,
-                movement_counter,
-                measurement_sequence
+                voltage
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         cols,
     )
 
@@ -62,16 +56,13 @@ def get_latest(dev_id):
     return conn.execute(
         """SELECT            
             strftime('%Y-%m-%dT%H:%M:%SZ', time, "unixepoch") as time, 
-            temperature,
             humidity,
+            temperature,               
             pressure,
             acceleration_x,
             acceleration_y,
             acceleration_z,
-            voltage,
-            tx_power,
-            movement_counter,
-            measurement_sequence
+            voltage
             FROM data WHERE data.device_id = ? 
             AND data.time = (
                 SELECT MAX(data.time) 
@@ -87,16 +78,13 @@ def get_interval(dev_id, start, end):
     return conn.execute(
         """SELECT            
             strftime('%Y-%m-%dT%H:%M:%SZ', time, "unixepoch") as time, 
-            temperature,
             humidity,
+            temperature,               
             pressure,
             acceleration_x,
             acceleration_y,
             acceleration_z,
-            voltage,
-            tx_power,
-            movement_counter,
-            measurement_sequence
+            voltage
             FROM data WHERE data.device_id = ? 
             AND data.time >= strftime("%s", ?)
             AND data.time <= strftime("%s", ?)

@@ -1,23 +1,25 @@
 from datetime import datetime
 from flask import current_app
 from ble2json import db
-from . import ruuvi5
+from . import ruuvi3, ruuvi5
 
 
 def init(app):
     with app.app_context():
         conn = db.get_conn()
 
-        for name, address in current_app.config["DEVICES"].items():
-            if (
-                conn.execute("SELECT id FROM device WHERE name = ?", (name,)).fetchone()
-                is None
-            ):
-                obj_path = "/org/bluez/hci0/dev_" + address.replace(":", "_")
-                conn.execute(
-                    "INSERT INTO device (name, address, obj_path) VALUES (?, ?, ?)",
-                    (name, address, obj_path),
-                )
+        for dev in current_app.config["DEVICES"]:
+            name = dev["name"]
+            address = dev["address"]
+            obj_path = "/org/bluez/hci0/dev_" + address.replace(":", "_")
+            fmt = dev["format"]
+
+            conn.execute(
+                """INSERT INTO device (name, address, obj_path, format)
+                   VALUES (?, ?, ?, ?)
+                   ON CONFLICT DO NOTHING""",
+                (name, address, obj_path, fmt),
+            )
 
         conn.commit()
 
@@ -33,20 +35,24 @@ def insert_data(db_path, obj_path, mfdata):
     if 0x0499 in mfdata:
         rawdata = mfdata[0x499]
 
+        if len(rawdata) == 14 and rawdata[0] == 3:
+            ruuvi3.insert(db_path, obj_path, rawdata)
         if len(rawdata) == 24 and rawdata[0] == 5:
             ruuvi5.insert(db_path, obj_path, rawdata)
         else:
             raise Exception("Unrecognized data format!")
 
+    else:
+        raise Exception("Unrecognized manufacturer id!")
+
 
 def get_all(start, end):
     conn = db.get_conn()
 
-    devs = conn.execute("SELECT id, name, address, rssi FROM device").fetchall()
+    devs = conn.execute("SELECT id, name, address, format, rssi FROM device").fetchall()
 
     for dev in devs:
-        dev_id = dev.pop("id", None)
-        dev["sensorData"] = get_sensor_data(dev_id, start, end)
+        dev["sensor_data"] = get_sensor_data(dev, start, end)
 
     return devs
 
@@ -55,24 +61,36 @@ def get_one(name, start, end):
     conn = db.get_conn()
 
     dev = conn.execute(
-        "SELECT id, name, address, rssi FROM device WHERE name = ?", (name,)
+        "SELECT id, name, address, format, rssi FROM device WHERE name = ?", (name,)
     ).fetchone()
 
     if dev:
-        dev_id = dev.pop("id", None)
-        dev["sensorData"] = get_sensor_data(dev_id, start, end)
+        dev["sensor_data"] = get_sensor_data(dev, start, end)
 
     return dev
 
 
-def get_sensor_data(dev_id, start, end):
+def get_sensor_data(dev, start, end):
+    dev_id = dev.pop("id", None)
+    fmt = dev.pop("format", None)
+    mod = get_mod(fmt)
+
     if not start and not end:
         return ruuvi5.get_latest(dev_id)
 
     if not start or start == "epoch":
         start = "1970-01-01T00:00:00Z"
-        
+
     if not end or end == "now":
         end = datetime.now().isoformat(timespec="seconds")
 
-    return ruuvi5.get_interval(dev_id, start, end)
+    return mod.get_interval(dev_id, start, end)
+
+
+def get_mod(fmt):
+    if fmt == "ruuvi3":
+        return ruuvi3
+    elif fmt == "ruuvi5":
+        return ruuvi5
+    else:
+        raise Exception("Invalid data format!")

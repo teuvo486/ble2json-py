@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS device (
     name TEXT UNIQUE NOT NULL,
     address TEXT UNIQUE NOT NULL,
     obj_path TEXT UNIQUE NOT NULL,
+    format TEXT NOT NULL,
     rssi INTEGER
 );
 
