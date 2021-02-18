@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask import current_app
-from . import db, ruuvi5
+from ble2json import db
+from . import ruuvi5
 
 
 def init(app):
@@ -19,6 +20,23 @@ def init(app):
                 )
 
         conn.commit()
+
+
+def insert_rssi(db_path, obj_path, rssi):
+    conn = db.connect(db_path)
+    conn.execute("UPDATE device SET rssi = ? WHERE obj_path = ?", (rssi, obj_path))
+    conn.commit()
+    conn.close()
+
+
+def insert_data(db_path, obj_path, mfdata):
+    if 0x0499 in mfdata:
+        rawdata = mfdata[0x499]
+
+        if len(rawdata) == 24 and rawdata[0] == 5:
+            ruuvi5.insert(db_path, obj_path, rawdata)
+        else:
+            raise Exception("Unrecognized data format!")
 
 
 def get_all(start, end):

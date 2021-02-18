@@ -1,5 +1,5 @@
 import unittest
-from ble2json.ruuvi5 import from_bytes
+from ble2json.device.ruuvi5 import from_bytes
 
 
 class TestRuuvi5(unittest.TestCase):
