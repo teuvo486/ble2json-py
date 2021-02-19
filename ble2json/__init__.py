@@ -1,6 +1,6 @@
 import os
 from flask import Flask
-from . import db, device, listener, router
+from . import cleanup, db, device, listener, router
 
 
 def create_app():
@@ -24,6 +24,8 @@ def create_app():
 
     device.init(app)
 
-    thread = listener.init(app)
+    listener.init(app)
+
+    cleanup.init(app)
 
     return app

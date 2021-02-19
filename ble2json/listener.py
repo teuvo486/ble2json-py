@@ -1,4 +1,4 @@
-import threading
+from threading import Thread
 from flask import current_app
 from gi.repository import GLib, Gio
 from . import db
@@ -8,9 +8,8 @@ from .device import insert_rssi, insert_data
 def init(app):
     with app.app_context():
         db_path = current_app.config["DB_PATH"]
-        thread = threading.Thread(target=listen, args=(db_path,))
+        thread = Thread(target=listen, args=(db_path,))
         thread.start()
-        return thread
 
 
 def listen(db_path):
