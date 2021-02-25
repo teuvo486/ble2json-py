@@ -1,7 +1,7 @@
 from threading import Thread
+from datetime import datetime, timedelta
 import time
 from flask import current_app
-from datetime import datetime, timedelta
 from . import db
 
 
@@ -21,8 +21,7 @@ def init(app):
                 thread.start()
 
     except Exception as e:
-        print(e)
-        raise SystemExit
+        raise SystemExit(e)
 
 
 def cleanup(db_path, max_age, delay):
@@ -36,8 +35,7 @@ def cleanup(db_path, max_age, delay):
             conn.close()
 
     except Exception as e:
-        print(e)
-        raise SystemExit
+        raise SystemExit(e)
 
 
 def get_timedelta(d):
@@ -51,5 +49,3 @@ def get_timedelta(d):
             hours=d.get("hours", 0),
             weeks=d.get("weeks", 0),
         )
-    else:
-        return None

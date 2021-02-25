@@ -60,8 +60,8 @@ def get_latest(dev_id):
     conn = db.get_conn()
 
     return conn.execute(
-        """SELECT            
-            strftime('%Y-%m-%dT%H:%M:%SZ', time, "unixepoch") as time, 
+        """SELECT
+            strftime('%Y-%m-%dT%H:%M:%SZ', time, "unixepoch") as time,
             temperature,
             humidity,
             pressure,
@@ -72,9 +72,9 @@ def get_latest(dev_id):
             tx_power,
             movement_counter,
             measurement_sequence
-            FROM data WHERE data.device_id = ? 
+            FROM data WHERE data.device_id = ?
             AND data.time = (
-                SELECT MAX(data.time) 
+                SELECT MAX(data.time)
                 FROM data WHERE data.device_id = ?
             )""",
         (dev_id, dev_id),
@@ -85,8 +85,8 @@ def get_interval(dev_id, start, end):
     conn = db.get_conn()
 
     return conn.execute(
-        """SELECT            
-            strftime('%Y-%m-%dT%H:%M:%SZ', time, "unixepoch") as time, 
+        """SELECT
+            strftime('%Y-%m-%dT%H:%M:%SZ', time, "unixepoch") as time,
             temperature,
             humidity,
             pressure,
@@ -97,7 +97,7 @@ def get_interval(dev_id, start, end):
             tx_power,
             movement_counter,
             measurement_sequence
-            FROM data WHERE data.device_id = ? 
+            FROM data WHERE data.device_id = ?
             AND data.time >= strftime("%s", ?)
             AND data.time <= strftime("%s", ?)
             ORDER BY data.time""",

@@ -1,7 +1,7 @@
 import struct
 from time import time
 from ble2json import db
-from .util import clamp, field, sign_and_magnitude
+from .util import field, sign_and_magnitude
 
 FMT = ">BBBBHhhhH"
 
@@ -35,7 +35,7 @@ def insert(db_path, obj_path, rawdata):
                 device_id,
                 time,
                 humidity,
-                temperature,               
+                temperature,
                 pressure,
                 acceleration_x,
                 acceleration_y,
@@ -54,16 +54,16 @@ def get_latest(dev_id):
     conn = db.get_conn()
 
     return conn.execute(
-        """SELECT            
-            strftime('%Y-%m-%dT%H:%M:%SZ', time, "unixepoch") as time, 
+        """SELECT
+            strftime('%Y-%m-%dT%H:%M:%SZ', time, "unixepoch") as time,
             humidity,
-            temperature,               
+            temperature,
             pressure,
             acceleration_x,
             acceleration_y,
             acceleration_z,
             voltage
-            FROM data WHERE data.device_id = ? 
+            FROM data WHERE data.device_id = ?
             AND data.time = (
                 SELECT MAX(data.time) 
                 FROM data WHERE data.device_id = ?
@@ -76,16 +76,16 @@ def get_interval(dev_id, start, end):
     conn = db.get_conn()
 
     return conn.execute(
-        """SELECT            
-            strftime('%Y-%m-%dT%H:%M:%SZ', time, "unixepoch") as time, 
+        """SELECT
+            strftime('%Y-%m-%dT%H:%M:%SZ', time, "unixepoch") as time,
             humidity,
-            temperature,               
+            temperature,
             pressure,
             acceleration_x,
             acceleration_y,
             acceleration_z,
             voltage
-            FROM data WHERE data.device_id = ? 
+            FROM data WHERE data.device_id = ?
             AND data.time >= strftime("%s", ?)
             AND data.time <= strftime("%s", ?)
             ORDER BY data.time""",

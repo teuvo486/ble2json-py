@@ -48,8 +48,7 @@ def listen(db_path):
         loop.run()
 
     except Exception as e:
-        print(e)
-        raise SystemExit
+        raise SystemExit(e)
 
 
 def callback(
@@ -62,12 +61,12 @@ def callback(
     user_data,
 ):
     try:
-        for p in parameters:
-            if "RSSI" in p:
-                insert_rssi(user_data["db_path"], object_path, p["RSSI"])
+        for par in parameters:
+            if "RSSI" in par:
+                insert_rssi(user_data["db_path"], object_path, par["RSSI"])
 
-            if "ManufacturerData" in p:
-                insert_data(user_data["db_path"], object_path, p["ManufacturerData"])
+            if "ManufacturerData" in par:
+                insert_data(user_data["db_path"], object_path, par["ManufacturerData"])
 
     except Exception as e:
         print(e)

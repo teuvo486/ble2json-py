@@ -1,7 +1,8 @@
 from flask import abort, Blueprint, jsonify, request
-from . import db, device
+from . import device
 
 bp = Blueprint("router", __name__)
+
 
 @bp.route("/", methods=["GET"])
 def get_all():
@@ -22,9 +23,9 @@ def get_one(name):
 
     if dev:
         return dev
-    else:
-        abort(404)
-        
+
+    abort(404)
+
 
 def cors(res):
     res.headers["Access-Control-Allow-Origin"] = "*"
