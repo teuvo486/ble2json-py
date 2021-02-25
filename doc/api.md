@@ -1,7 +1,7 @@
 Endpoints
 =========
 
-/
+"/"
 ---
 
 Return all configured devices with their data from the specified time interval.
@@ -31,7 +31,7 @@ Response:
         ...
     ]
 
-/<name>
+"/\<name\>"
 -------
 
 Return the device and data with matching name.
