@@ -13,7 +13,7 @@ def create_app():
 
     app.config.from_json("config.json")
 
-    if app.config["PERSISTENT"]:
+    if app.config.get("PERSISTENT", False):
         app.config["DB_PATH"] = app.instance_path + "/ble2json.db"
     else:
         app.config["DB_PATH"] = "/dev/shm/ble2json.db"

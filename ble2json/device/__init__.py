@@ -8,18 +8,20 @@ def init(app):
     with app.app_context():
         conn = db.get_conn()
 
-        for dev in current_app.config["DEVICES"]:
-            name = dev["name"]
-            address = dev["address"]
-            obj_path = "/org/bluez/hci0/dev_" + address.replace(":", "_")
-            fmt = dev["format"]
+        for dev in current_app.config.get("DEVICES", []):
+            name = dev.get("name", None)
+            address = dev.get("address", None)
+            fmt = dev.get("format", None)
 
-            conn.execute(
-                """INSERT INTO device (name, address, obj_path, format)
-                   VALUES (?, ?, ?, ?)
-                   ON CONFLICT DO NOTHING""",
-                (name, address, obj_path, fmt),
-            )
+            if name and address and fmt:
+                obj_path = "/org/bluez/hci0/dev_" + address.replace(":", "_")
+
+                conn.execute(
+                    """INSERT INTO device (name, address, obj_path, format)
+                       VALUES (?, ?, ?, ?)
+                       ON CONFLICT DO NOTHING""",
+                    (name, address, obj_path, fmt),
+                )
 
         conn.commit()
 
@@ -78,7 +80,7 @@ def get_sensor_data(dev, start, end):
     if not start and not end:
         return ruuvi5.get_latest(dev_id)
 
-    if not start or start == "epoch":
+    if not start or start == "unixepoch":
         start = "1970-01-01T00:00:00Z"
 
     if not end or end == "now":
