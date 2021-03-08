@@ -28,25 +28,25 @@ def insert(db_path, obj_path, rawdata):
     conn = db.connect(db_path)
 
     dev_id = conn.execute(
-        "SELECT id FROM device WHERE obj_path = ?", (obj_path,)
+        "SELECT id FROM device WHERE objPath = ?", (obj_path,)
     ).fetchone()["id"]
 
     cols = (dev_id, int(time())) + data
 
     conn.execute(
         """INSERT INTO data (
-                device_id,
+                deviceId,
                 time,
                 temperature,
                 humidity,
                 pressure,
-                acceleration_x,
-                acceleration_y,
-                acceleration_z,
+                accelerationX,
+                accelerationY,
+                accelerationZ,
                 voltage,
-                tx_power,
-                movement_counter,
-                measurement_sequence
+                txPower,
+                movementCounter,
+                measurementSequence
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         cols,
@@ -65,17 +65,17 @@ def get_latest(dev_id):
             temperature,
             humidity,
             pressure,
-            acceleration_x,
-            acceleration_y,
-            acceleration_z,
+            accelerationX,
+            accelerationY,
+            accelerationZ,
             voltage,
-            tx_power,
-            movement_counter,
-            measurement_sequence
-            FROM data WHERE data.device_id = ?
+            txPower,
+            movementCounter,
+            measurementSequence
+            FROM data WHERE data.deviceId = ?
             AND data.time = (
                 SELECT MAX(data.time)
-                FROM data WHERE data.device_id = ?
+                FROM data WHERE data.deviceId = ?
             )""",
         (dev_id, dev_id),
     ).fetchone()
@@ -90,14 +90,14 @@ def get_interval(dev_id, start, end):
             temperature,
             humidity,
             pressure,
-            acceleration_x,
-            acceleration_y,
-            acceleration_z,
+            accelerationX,
+            accelerationY,
+            accelerationZ,
             voltage,
-            tx_power,
-            movement_counter,
-            measurement_sequence
-            FROM data WHERE data.device_id = ?
+            txPower,
+            movementCounter,
+            measurementSequence
+            FROM data WHERE data.deviceId = ?
             AND data.time >= strftime("%s", ?)
             AND data.time <= strftime("%s", ?)
             ORDER BY data.time""",

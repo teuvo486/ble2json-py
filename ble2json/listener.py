@@ -31,12 +31,12 @@ def listen(db_path):
         conn = db.connect(db_path)
         user_data = {"db_path": db_path}
 
-        for row in conn.execute("SELECT obj_path FROM device"):
+        for row in conn.execute("SELECT objPath FROM device"):
             bus.signal_subscribe(
                 None,
                 "org.freedesktop.DBus.Properties",
                 "PropertiesChanged",
-                row["obj_path"],
+                row["objPath"],
                 None,
                 Gio.DBusSignalFlags.NONE,
                 callback,

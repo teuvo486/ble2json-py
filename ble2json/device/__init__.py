@@ -17,7 +17,7 @@ def init(app):
                 obj_path = "/org/bluez/hci0/dev_" + address.replace(":", "_")
 
                 conn.execute(
-                    """INSERT INTO device (name, address, obj_path, format)
+                    """INSERT INTO device (name, address, objPath, format)
                        VALUES (?, ?, ?, ?)
                        ON CONFLICT DO NOTHING""",
                     (name, address, obj_path, fmt),
@@ -28,7 +28,7 @@ def init(app):
 
 def insert_rssi(db_path, obj_path, rssi):
     conn = db.connect(db_path)
-    conn.execute("UPDATE device SET rssi = ? WHERE obj_path = ?", (rssi, obj_path))
+    conn.execute("UPDATE device SET rssi = ? WHERE objPath = ?", (rssi, obj_path))
     conn.commit()
     conn.close()
 
@@ -54,7 +54,7 @@ def get_all(start, end):
     devs = conn.execute("SELECT id, name, address, format, rssi FROM device").fetchall()
 
     for dev in devs:
-        dev["sensor_data"] = get_sensor_data(dev, start, end)
+        dev["sensorData"] = get_sensor_data(dev, start, end)
 
     return devs
 
@@ -67,7 +67,7 @@ def get_one(name, start, end):
     ).fetchone()
 
     if dev:
-        dev["sensor_data"] = get_sensor_data(dev, start, end)
+        dev["sensorData"] = get_sensor_data(dev, start, end)
 
     return dev
 
@@ -78,7 +78,7 @@ def get_sensor_data(dev, start, end):
     mod = get_mod(fmt)
 
     if not start and not end:
-        return ruuvi5.get_latest(dev_id)
+        return mod.get_latest(dev_id)
 
     if not start or start == "unixepoch":
         start = "1970-01-01T00:00:00Z"
