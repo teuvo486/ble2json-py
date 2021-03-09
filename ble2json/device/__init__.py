@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, time, datetime, timedelta
 from flask import current_app
 from ble2json import db
 from . import ruuvi3, ruuvi5
@@ -79,12 +79,8 @@ def get_sensor_data(dev, start, end):
 
     if not start and not end:
         return mod.get_latest(dev_id)
-
-    if not start or start == "unixepoch":
-        start = "1970-01-01T00:00:00Z"
-
-    if not end or end == "now":
-        end = datetime.now().isoformat(timespec="seconds")
+    
+    start, end = get_datetimes(start, end)
 
     return mod.get_interval(dev_id, start, end)
 
@@ -96,3 +92,41 @@ def get_mod(fmt):
         return ruuvi5
     else:
         raise Exception("Invalid data format!")
+        
+
+def get_datetimes(start, end):
+    aliases = ["epoch", "now", "day", "week", "month", "year"]
+
+    if not start:
+        start = resolve_alias("epoch")
+    elif start in aliases:
+        start = resolve_alias(start)
+        
+    if not end:
+        end = resolve_alias("now")
+    elif end in aliases:
+        end = resolve_alias(end)
+        
+    return start, end
+
+
+def resolve_alias(a):
+    if a == "epoch":
+        return "1970-01-01T00:00:00Z"
+        
+    if a == "now":
+        return datetime.now().isoformat(timespec="seconds")
+    
+    if a == "day":
+        d = date.today()
+    elif a == "week":
+        d = date.today() - timedelta(days=date.today().weekday() % 7)
+    elif a == "month":
+        d = date.today().replace(day=1)
+    else:
+        d = date.today().replace(day=1, month=1)
+    
+    return datetime.combine(d, time()).isoformat(timespec="seconds")
+    
+
+
