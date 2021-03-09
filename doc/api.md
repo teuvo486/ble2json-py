@@ -11,6 +11,7 @@ the other parameter defaults to UNIX epoch or current time.
 With no parameters, return the latest data from each device.
 
 Aliases:
+
     "epoch" => 1970-01-01T00:00:00Z
     "now"   => current date-time
     "day"   => start of current day
@@ -19,9 +20,11 @@ Aliases:
     "year"  => start of current year
 
 Example request:
+
     GET /?start=2021-02-02T10:10:10Z HTTP/1.1
 
 Response:
+
     HTTP/1.1 200 OK
     ...
     [
@@ -44,9 +47,11 @@ Return the device with matching name.
 Accepts the same parameters as above.
 
 Example request:
+
     GET /example HTTP/1.1
 
 Response:
+
     HTTP/1.1 200 OK
     ...
     {
