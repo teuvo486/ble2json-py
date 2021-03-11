@@ -21,7 +21,7 @@ def init(app):
                 thread.start()
 
     except Exception as e:
-        raise SystemExit(e)
+        print(e)
 
 
 def cleanup(db_path, max_age, delay):
@@ -35,7 +35,7 @@ def cleanup(db_path, max_age, delay):
             conn.close()
 
     except Exception as e:
-        raise SystemExit(e)
+        print(e)
 
 
 def get_timedelta(d):

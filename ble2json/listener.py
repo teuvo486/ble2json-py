@@ -7,6 +7,23 @@ from .device import insert_rssi, insert_data
 
 def init(app):
     with app.app_context():
+        bus = Gio.bus_get_sync(Gio.BusType.SYSTEM, None)
+        
+        names = bus.call_sync(
+            "org.freedesktop.DBus",
+            "/org/freedesktop/DBus",
+            "org.freedesktop.DBus",
+            "ListNames",
+            None,
+            None,
+            Gio.DBusCallFlags.NONE,
+            -1,
+            None,
+        )
+        
+        if "org.bluez" not in names[0]:
+            raise SystemExit("Bluez is not installed!")
+    
         db_path = current_app.config["DB_PATH"]
         thread = Thread(target=listen, args=(db_path,))
         thread.start()
@@ -27,7 +44,7 @@ def listen(db_path):
             -1,
             None,
         )
-
+        
         conn = db.connect(db_path)
         user_data = {"db_path": db_path}
 
@@ -48,7 +65,7 @@ def listen(db_path):
         loop.run()
 
     except Exception as e:
-        raise SystemExit(e)
+        print(e)
 
 
 def callback(
