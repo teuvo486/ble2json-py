@@ -24,7 +24,8 @@ def create_app():
 
     device.init(app)
 
-    listener.init(app)
+    if not app.config.get("NO_LISTEN", False):
+        listener.init(app)
 
     cleanup.init(app)
 

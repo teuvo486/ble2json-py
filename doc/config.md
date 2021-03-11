@@ -44,3 +44,8 @@ Example:
 
 How often the clean-up thread should run. Same format as in MAX_AGE. Defaults to `{"hours": 1}`.
 
+"NO_LISTEN": boolean
+--------------------
+
+Do not run the listener thread (for testing purposes). Defaults to `false`.
+
