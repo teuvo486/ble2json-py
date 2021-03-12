@@ -1,4 +1,5 @@
-from flask import abort, Blueprint, jsonify, request
+import gzip
+from flask import abort, Blueprint, json, jsonify, request, make_response
 from . import device
 
 bp = Blueprint("router", __name__)
@@ -9,9 +10,12 @@ def get_all():
     start = request.args.get("start")
     end = request.args.get("end")
 
-    dev = device.get_all(start, end)
+    devs = device.get_all(start, end)
 
-    return jsonify(dev)
+    if "gzip" in request.accept_encodings:
+        return compress(devs)
+        
+    return jsonify(devs)
 
 
 @bp.route("/<name>", methods=["GET"])
@@ -20,11 +24,22 @@ def get_one(name):
     end = request.args.get("end")
 
     dev = device.get_one(name, start, end)
+    
+    if not dev:
+        abort(404)
 
-    if dev:
-        return dev
+    if "gzip" in request.accept_encodings:
+        return compress(dev)
+        
+    return dev
 
-    abort(404)
+
+def compress(data):
+    b = bytes(json.dumps(data), "UTF-8")
+    res = make_response(gzip.compress(b))
+    res.headers["Content-Type"] = "application/json"
+    res.headers["Content-Encoding"] = "gzip"
+    return res
 
 
 def cors(res):
