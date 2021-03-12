@@ -6,8 +6,6 @@ from ble2json import db
 from ble2json.device import ruuvi5
 
 FMT = ">BhHHhhhHBHBBBBBB"
-start = datetime(2021, 1, 1)
-end = datetime(2021, 2, 1)
 delta = timedelta(seconds=20)
 test_devs = [
     { 
@@ -31,7 +29,10 @@ test_devs = [
 ]
 
 
-def generate():
+def generate(start, end):
+    start = datetime.fromisoformat(start)
+    end = datetime.fromisoformat(end)
+    
     conn = db.connect("/dev/shm/ble2json.db")
 
     with open(relpath("ble2json/schema.sql")) as f:
