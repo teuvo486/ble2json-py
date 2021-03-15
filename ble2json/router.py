@@ -9,12 +9,12 @@ bp = Blueprint("router", __name__)
 def get_all():
     start = request.args.get("start")
     end = request.args.get("end")
-
-    devs = device.get_all(start, end)
+    cols = request.args.get("columns")
+    devs = device.get_all(start, end, cols)
 
     if "gzip" in request.accept_encodings:
         return compress(devs)
-        
+
     return jsonify(devs)
 
 
@@ -22,15 +22,15 @@ def get_all():
 def get_one(name):
     start = request.args.get("start")
     end = request.args.get("end")
+    cols = request.args.get("columns")
+    dev = device.get_one(name, start, end, cols)
 
-    dev = device.get_one(name, start, end)
-    
     if not dev:
         abort(404)
 
     if "gzip" in request.accept_encodings:
         return compress(dev)
-        
+
     return dev
 
 

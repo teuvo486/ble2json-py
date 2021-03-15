@@ -3,92 +3,69 @@ import sqlite3
 from os.path import relpath
 from datetime import datetime, timedelta
 from ble2json import db
-from ble2json.device import ruuvi5
+from ble2json.device import sensordata, ruuvi5
 
-FMT = ">BhHHhhhHBHBBBBBB"
-delta = timedelta(seconds=20)
-test_devs = [
-    { 
+DELTA = timedelta(seconds=20)
+TEST_DEVS = [
+    {
         "name": "example1",
         "address": "00:00:00:00:00:01",
         "objPath": "/org/bluez/hci0/dev_00_00_00_00_00_01",
-        "format": "ruuvi5"
+        "format": "ruuvi5",
     },
-    { 
+    {
         "name": "example2",
         "address": "00:00:00:00:00:02",
         "objPath": "/org/bluez/hci0/dev_00_00_00_00_00_02",
-        "format": "ruuvi5"
+        "format": "ruuvi5",
     },
-    { 
+    {
         "name": "example3",
         "address": "00:00:00:00:00:03",
         "objPath": "/org/bluez/hci0/dev_00_00_00_00_00_03",
-        "format": "ruuvi5"
-    }
+        "format": "ruuvi5",
+    },
 ]
 
 
 def generate(start, end):
     start = datetime.fromisoformat(start)
     end = datetime.fromisoformat(end)
-    
-    conn = db.connect("/dev/shm/ble2json.db")
+    db_path = "/dev/shm/ble2json.db"
+    conn = db.connect(db_path)
 
     with open(relpath("ble2json/schema.sql")) as f:
         conn.executescript(f.read())
 
-    for dev in test_devs:
+    for dev in TEST_DEVS:
+        name = dev["name"]
+        addr = dev["address"]
+        obj_path = dev["objPath"]
+        fmt = dev["format"]
+
         conn.execute(
             """INSERT INTO device (name, address, objPath, format)
                VALUES (?, ?, ?, ?)
                ON CONFLICT DO NOTHING""",
-            (dev["name"], dev["address"], dev["objPath"], dev["format"]),
+            (name, addr, obj_path, fmt),
         )
-        
-        conn.commit()
-        
-        dev_id = conn.execute(
-        "SELECT id FROM device WHERE objPath = ?", (dev["objPath"],)
-        ).fetchone()["id"]
 
+        conn.commit()
         current = start
 
         while current < end:
-            current += delta
-            
+            current += DELTA
             time = int(current.timestamp())
-            
-            data = generate_test_data(time)
-        
-            cols = (dev_id, time) + data
-            
-            conn.execute(
-                """INSERT INTO data (
-                        deviceId,
-                        time,
-                        temperature,
-                        humidity,
-                        pressure,
-                        accelerationX,
-                        accelerationY,
-                        accelerationZ,
-                        voltage,
-                        txPower,
-                        movementCounter,
-                        measurementSequence
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                cols,
-            )
-        
+            mfdata = generate_test_data(time)
+            sensordata.insert(db_path, obj_path, time, mfdata)
+
     conn.commit()
     conn.close()
-    
+
 
 def generate_test_data(time):
     b = struct.pack(
-        FMT,
+        ruuvi5.FMT,
         5,
         -32767 + time % 65534,
         time % 40000,
@@ -106,6 +83,5 @@ def generate_test_data(time):
         0,
         0,
     )
-    
-    return ruuvi5.from_bytes(b)
 
+    return {0x0499: b}

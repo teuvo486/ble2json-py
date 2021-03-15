@@ -4,36 +4,51 @@ Endpoints
 "/"
 ---
 
-Return all configured devices with their data from the specified time interval.
-Accepts parameters "start" and "end", which can be date-times in ISO 8601 format,
-or one of the aliases listed below. If only "start" or "end" is present,
-the other parameter defaults to UNIX epoch or current time.
-With no parameters, return the latest data from each device.
+Return the specified columns from the specified time interval from each device.
+With no parameters, return the latest values of all columns from each device.
 
-Aliases:
+**Parameters:**
 
-    "epoch" => 1970-01-01T00:00:00Z
-    "now"   => current date-time
-    "day"   => start of current day
-    "week"  => start of current week
-    "month" => start of current month
-    "year"  => start of current year
+"start": ISO 8601 string or a time alias. Defaults to "epoch" if "end" is set.
 
-Example request:
+"end": ISO 8601 string or a time alias. Defaults to "now" if "start" is set.
 
-    GET /?start=2021-02-02T10:10:10Z HTTP/1.1
+"columns": Comma-separated list of valid column names, excluding "time", 
+which is always included in the output.
 
-Response:
+**Time aliases:**
+
+"epoch": 1970-01-01T00:00:00Z
+
+"now": current time (UTC)
+
+"day": start of current day (UTC)
+
+"week": start of current week (UTC)
+
+"month": start of current month (UTC)
+
+"year": start of current year (UTC)
+
+**Example request:**
+
+    GET /?start=week&columns=temperature,humidity HTTP/1.1
+
+**Response:**
 
     HTTP/1.1 200 OK
     ...
     [
         {
-            "address":"CB:98:33:4C:88:4F",
-            "name":"example",
-            "rssi":-88,
+            "address": "00:00:00:00:00:01",
+            "name": "example1",
+            "rssi": -88,
             "sensorData": [
-                { ... },
+                {
+                    "humidity": 38.0, 
+                    "temperature": -105.755, 
+                    "time": "2021-01-13T22:00:00Z"
+                },
                 ...
             ]
         }
@@ -41,25 +56,27 @@ Response:
     ]
 
 "/\<name\>"
--------
+-----------
 
 Return the device with matching name.
 Accepts the same parameters as above.
 
-Example request:
+**Example request:**
 
-    GET /example HTTP/1.1
+    GET /example1?columns=temperature,humidity HTTP/1.1
 
-Response:
+**Response:**
 
     HTTP/1.1 200 OK
     ...
     {
-        "address":"CB:98:33:4C:88:4F",
-        "name":"example",
-        "rssi":-88,
-        "sensorData": { 
-            ... 
+        "address": "00:00:00:00:00:01",
+        "name": "example1", 
+        "rssi": null, 
+        "sensorData": {
+            "humidity": 38.0, 
+            "temperature": -105.755, 
+            "time": "2021-01-13T22:00:00Z"
         }
     }
 

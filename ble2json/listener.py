@@ -1,14 +1,15 @@
+from time import time
 from threading import Thread
 from flask import current_app
 from gi.repository import GLib, Gio
 from . import db
-from .device import insert_rssi, insert_data
+from .device import update_rssi, sensordata
 
 
 def init(app):
     with app.app_context():
         bus = Gio.bus_get_sync(Gio.BusType.SYSTEM, None)
-        
+
         names = bus.call_sync(
             "org.freedesktop.DBus",
             "/org/freedesktop/DBus",
@@ -20,10 +21,10 @@ def init(app):
             -1,
             None,
         )
-        
+
         if "org.bluez" not in names[0]:
             raise SystemExit("Bluez is not installed!")
-    
+
         db_path = current_app.config["DB_PATH"]
         thread = Thread(target=listen, args=(db_path,))
         thread.start()
@@ -44,7 +45,7 @@ def listen(db_path):
             -1,
             None,
         )
-        
+
         conn = db.connect(db_path)
         user_data = {"db_path": db_path}
 
@@ -80,10 +81,15 @@ def callback(
     try:
         for par in parameters:
             if "RSSI" in par:
-                insert_rssi(user_data["db_path"], object_path, par["RSSI"])
+                update_rssi(user_data["db_path"], object_path, par["RSSI"])
 
             if "ManufacturerData" in par:
-                insert_data(user_data["db_path"], object_path, par["ManufacturerData"])
+                sensordata.insert(
+                    user_data["db_path"],
+                    object_path,
+                    int(time()),
+                    par["ManufacturerData"],
+                )
 
     except Exception as e:
         print(e)
