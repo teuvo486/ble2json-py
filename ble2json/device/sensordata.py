@@ -49,30 +49,12 @@ def insert(db_path, obj_path, time, mfdata):
     data = parse_mfdata(mfdata)
     conn = db.connect(db_path)
 
-    dev_id = (
-        conn.execute("SELECT id FROM device WHERE objPath = ?", (obj_path,))
-        .fetchone()
-        .get("id")
-    )
-
     conn.execute(
-        """INSERT INTO data (
-            deviceId, 
-            time, 
-            temperature,
-            humidity,
-            pressure,
-            accelerationX,
-            accelerationY,
-            accelerationZ,
-            voltage,
-            txPower,
-            movementCounter,
-            measurementSequence
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        """INSERT INTO data
+           VALUES ((SELECT id FROM device WHERE objPath = ?), 
+           ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
-            dev_id,
+            obj_path,
             time,
             data.get("temperature"),
             data.get("humidity"),
