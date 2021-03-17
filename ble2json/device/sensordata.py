@@ -1,7 +1,7 @@
 from flask import abort
 from ble2json import db
 from ble2json.device import ruuvi3, ruuvi5
-from .util import get_datetimes
+from ble2json.timeutil import get_datetimes
 
 VALID_COLS = [
     "temperature",
@@ -45,31 +45,47 @@ def parse_mfdata(mfdata):
         raise Exception("Unrecognized manufacturer id!")
 
 
-def insert(db_path, obj_path, time, mfdata):
-    data = parse_mfdata(mfdata)
+def insert(db_path, obj_path, rate_limit, time, mfdata):
     conn = db.connect(db_path)
 
-    conn.execute(
-        """INSERT INTO data
-           VALUES ((SELECT id FROM device WHERE objPath = ?), 
-           ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (
-            obj_path,
-            time,
-            data.get("temperature"),
-            data.get("humidity"),
-            data.get("pressure"),
-            data.get("accelerationX"),
-            data.get("accelerationY"),
-            data.get("accelerationZ"),
-            data.get("voltage"),
-            data.get("txPower"),
-            data.get("movementCounter"),
-            data.get("measurementSequence"),
-        ),
+    latest = (
+        conn.execute(
+            """SELECT MAX(time) as time FROM data WHERE deviceId = 
+               (SELECT id FROM device WHERE objPath = ?)""",
+            (obj_path,),
+        )
+        .fetchone()
+        .get("time")
     )
 
-    conn.commit()
+    if not latest:
+        latest = 0
+
+    if time - latest >= rate_limit:
+        data = parse_mfdata(mfdata)
+
+        conn.execute(
+            """INSERT INTO data
+               VALUES ((SELECT id FROM device WHERE objPath = ?), 
+               ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                obj_path,
+                time,
+                data.get("temperature"),
+                data.get("humidity"),
+                data.get("pressure"),
+                data.get("accelerationX"),
+                data.get("accelerationY"),
+                data.get("accelerationZ"),
+                data.get("voltage"),
+                data.get("txPower"),
+                data.get("movementCounter"),
+                data.get("measurementSequence"),
+            ),
+        )
+
+        conn.commit()
+
     conn.close()
 
 

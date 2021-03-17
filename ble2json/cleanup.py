@@ -1,8 +1,9 @@
-from threading import Thread
-from datetime import datetime, timedelta
 import time
+from threading import Thread
+from datetime import datetime
 from flask import current_app
 from . import db
+from .timeutil import get_timedelta
 
 
 def init(app):
@@ -10,8 +11,8 @@ def init(app):
         with app.app_context():
             db_path = current_app.config["DB_PATH"]
 
-            max_age_dict = current_app.config.get("MAX_AGE", None)
-            delay_dict = current_app.config.get("CLEANUP_DELAY", {"hours": 1})
+            max_age_dict = current_app.config.get("MAX_AGE", {"weeks": 4})
+            delay_dict = current_app.config.get("CLEANUP_INTERVAL", {"hours": 1})
 
             max_age = get_timedelta(max_age_dict)
             delay = get_timedelta(delay_dict)
@@ -36,16 +37,3 @@ def cleanup(db_path, max_age, delay):
 
     except Exception as e:
         print(e)
-
-
-def get_timedelta(d):
-    if d:
-        return timedelta(
-            days=d.get("days", 0),
-            seconds=d.get("seconds", 0),
-            microseconds=d.get("microseconds", 0),
-            milliseconds=d.get("milliseconds", 0),
-            minutes=d.get("minutes", 0),
-            hours=d.get("hours", 0),
-            weeks=d.get("weeks", 0),
-        )

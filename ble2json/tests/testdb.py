@@ -6,6 +6,7 @@ from ble2json import db
 from ble2json.device import sensordata, ruuvi5
 
 DELTA = timedelta(seconds=20)
+RATE_LIMIT = timedelta(minutes=5).total_seconds()
 TEST_DEVS = [
     {
         "name": "example1",
@@ -57,7 +58,7 @@ def generate(start, end):
             current += DELTA
             time = int(current.timestamp())
             mfdata = generate_test_data(time)
-            sensordata.insert(db_path, obj_path, time, mfdata)
+            sensordata.insert(db_path, obj_path, RATE_LIMIT, time, mfdata)
 
     conn.commit()
     conn.close()

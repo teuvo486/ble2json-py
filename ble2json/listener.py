@@ -4,6 +4,7 @@ from flask import current_app
 from gi.repository import GLib, Gio
 from . import db
 from .device import update_rssi, sensordata
+from .timeutil import get_timedelta
 
 
 def init(app):
@@ -23,14 +24,20 @@ def init(app):
         )
 
         if "org.bluez" not in names[0]:
-            raise SystemExit("Bluez is not installed!")
+            raise SystemExit("BlueZ is not installed!")
 
-        db_path = current_app.config["DB_PATH"]
-        thread = Thread(target=listen, args=(db_path,))
+        user_data = {
+            "db_path": current_app.config["DB_PATH"],
+            "rate_limit": get_timedelta(
+                current_app.config.get("RATE_LIMIT", {"minutes": 5})
+            ).total_seconds(),
+        }
+
+        thread = Thread(target=listen, args=(user_data,))
         thread.start()
 
 
-def listen(db_path):
+def listen(user_data):
     try:
         bus = Gio.bus_get_sync(Gio.BusType.SYSTEM, None)
 
@@ -46,8 +53,7 @@ def listen(db_path):
             None,
         )
 
-        conn = db.connect(db_path)
-        user_data = {"db_path": db_path}
+        conn = db.connect(user_data["db_path"])
 
         for row in conn.execute("SELECT objPath FROM device"):
             bus.signal_subscribe(
@@ -87,6 +93,7 @@ def callback(
                 sensordata.insert(
                     user_data["db_path"],
                     object_path,
+                    user_data["rate_limit"],
                     int(time()),
                     par["ManufacturerData"],
                 )
