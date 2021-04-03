@@ -1,0 +1,9 @@
+#!/bin/bash
+
+ln -s /etc/nginx/sites-available/ble2json.conf /etc/nginx/sites-enabled/ble2json.conf
+
+systemctl enable ble2json.service
+
+systemctl start ble2json.service
+
+systemctl restart nginx.service

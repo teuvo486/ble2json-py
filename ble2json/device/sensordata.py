@@ -89,12 +89,12 @@ def insert(db_path, obj_path, rate_limit, time, mfdata):
     conn.close()
 
 
-def get(dev_id, fmt, start, end, validate_me):
+def get(dev_id, fmt, start, end, cols):
     mod = get_mod(fmt)
+    
+    print(cols)
 
-    if validate_me:
-        cols = validate_columns(validate_me)
-    else:
+    if not cols:
         cols = mod.COLS
 
     if not start and not end:
@@ -114,8 +114,10 @@ def get_mod(fmt):
     raise Exception("Invalid data format!")
 
 
-def get_latest(dev_id, cols):
+def get_latest(dev_id, validate_me):
     conn = db.get_conn()
+    
+    cols = validate_columns(validate_me)
 
     return conn.execute(
         f"""SELECT
@@ -130,8 +132,10 @@ def get_latest(dev_id, cols):
     ).fetchone()
 
 
-def get_interval(dev_id, start, end, cols):
+def get_interval(dev_id, start, end, validate_me):
     conn = db.get_conn()
+    
+    cols = validate_columns(validate_me)
 
     return conn.execute(
         f"""SELECT

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+rm /etc/nginx/sites-enabled/ble2json.conf
+
+systemctl stop ble2json.service
+
+systemctl disable ble2json.service
