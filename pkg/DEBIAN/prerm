@@ -1,7 +1,13 @@
 #!/bin/bash
 
-rm /etc/nginx/sites-enabled/ble2json.conf
+set -e
+
+LINK_NAME=/etc/nginx/sites-enabled/ble2json.conf
 
 systemctl stop ble2json.service
 
 systemctl disable ble2json.service
+
+if [[ -e $LINK_NAME ]] ; then
+    rm $LINK_NAME
+fi
