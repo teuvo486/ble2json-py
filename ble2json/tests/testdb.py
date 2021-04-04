@@ -1,6 +1,4 @@
 import struct
-import sqlite3
-from os.path import relpath
 from datetime import date, datetime, timedelta
 from ble2json import db
 from ble2json.device import ruuvi5
@@ -13,12 +11,8 @@ START = int((datetime.now() - timedelta(days=365)).timestamp())
 END = int(datetime.now().timestamp())
 DELTA = int(timedelta(minutes=5).total_seconds())
     
-def generate():
-    db_path = "/dev/shm/ble2json.db"
+def generate(db_path):
     conn = db.connect(db_path)
-
-    with open(relpath("ble2json/schema.sql")) as f:
-        conn.executescript(f.read())
 
     conn.execute(
         """INSERT INTO device (name, address, objPath, format)

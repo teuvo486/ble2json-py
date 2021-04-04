@@ -11,7 +11,7 @@ All keys are case-sensitive.
 How long the clean-up thread should wait between runs.
 An object that gets converted into a 
 [datetime.timedelta](https://docs.python.org/3.8/library/datetime.html#datetime.timedelta) 
-instance; see the link for allowed keys. Defaults to `{"hours": 1}`. 
+instance; see the link for allowed keys. Defaults to `{"hours": 6}`. 
 
 "DEVICES": [object]
 -------------------
@@ -22,7 +22,7 @@ Devices to add into the database. Array of objects with "name", "address", and "
 -----------------
 
 Clean up all data points older than this. Same format as in `CLEANUP_INTERVAL` and `RATE_LIMIT`.
-Defaults to `{"weeks": 4}`. If total duration is equal to 0, the clean-up thread will not run.
+Defaults to `{"weeks": 10}`. If total duration is equal to 0, the clean-up thread will not run.
 
 "NO_LISTEN": boolean
 --------------------

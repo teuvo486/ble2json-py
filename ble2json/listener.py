@@ -2,7 +2,7 @@ from time import time
 from threading import Thread
 from flask import current_app
 from gi.repository import GLib, Gio
-from . import db
+from . import db, defaults
 from .device import update_rssi, sensordata
 from .timeutil import get_timedelta
 
@@ -29,7 +29,7 @@ def init(app):
         user_data = {
             "db_path": current_app.config["DB_PATH"],
             "rate_limit": get_timedelta(
-                current_app.config.get("RATE_LIMIT", {"minutes": 5})
+                current_app.config.get("RATE_LIMIT", defaults.RATE_LIMIT)
             ).total_seconds(),
         }
 
