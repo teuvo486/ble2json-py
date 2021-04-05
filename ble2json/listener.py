@@ -57,7 +57,7 @@ def listen(user_data):
 
         for row in conn.execute("SELECT objPath FROM device"):
             bus.signal_subscribe(
-                None,
+                "org.bluez",
                 "org.freedesktop.DBus.Properties",
                 "PropertiesChanged",
                 row["objPath"],

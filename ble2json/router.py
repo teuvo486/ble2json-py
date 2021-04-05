@@ -24,11 +24,3 @@ def get_one(name):
         abort(404)
 
     return dev
-
-
-def cors(res):
-    res.headers["Access-Control-Allow-Origin"] = "*"
-    return res
-
-
-bp.after_request(cors)

@@ -1,0 +1,151 @@
+import json
+from json.decoder import JSONDecodeError
+from queue import SimpleQueue
+from threading import Thread
+from gi.repository import GLib, Gio
+
+CONFIG_PATH = "/usr/var/ble2json-instance/config.json"
+
+def prompt():
+    while True:
+        i = input("Would you like to scan for BLE devices now? [y/n]\n> ").lower()
+        if i == "y" or i == "yes":
+            run()
+            break
+        elif i == "n" or i == "no":
+            break
+        else:
+            pass
+
+
+def run():
+    try:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            d = json.load(f)
+    except (FileNotFoundError, JSONDecodeError):
+        d = {}
+
+    if not d.get("DEVICES"):
+        d["DEVICES"] = []
+
+    try:
+        scan(d["DEVICES"])
+    except KeyboardInterrupt:
+        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump(d, f, indent=4)
+            print("")
+
+
+def scan(devs):
+    bus = Gio.bus_get_sync(Gio.BusType.SYSTEM, None)
+
+    names = bus.call_sync(
+        "org.freedesktop.DBus",
+        "/org/freedesktop/DBus",
+        "org.freedesktop.DBus",
+        "ListNames",
+        None,
+        None,
+        Gio.DBusCallFlags.NONE,
+        -1,
+        None,
+    )
+
+    if "org.bluez" not in names[0]:
+        raise SystemExit("BlueZ is not installed!")
+
+    q = SimpleQueue()
+
+    user_data = {"q": q}
+
+    Thread(target=listen, args=(user_data,), daemon=True).start()
+
+    print("Scanning... [CTRL-C to save and quit]")
+
+    while True:
+        dev = q.get()
+        fmt = dev.get("format")
+        addr = dev.get("address")
+
+        if not exists(devs, addr):
+            print(f"Found new device of type {fmt} at {addr}")
+            i = input("Enter name for this device [s to skip]\n> ").lower()
+
+            if not i == "s":
+                dev["name"] = i
+                devs.append(dev)
+                print("Device added")
+
+
+def exists(devs, addr):
+    for d in devs:
+        if d.get("address") == addr:
+            return True
+
+    return False
+
+
+def listen(user_data):
+    bus = Gio.bus_get_sync(Gio.BusType.SYSTEM, None)
+
+    bus.call_sync(
+        "org.bluez",
+        "/org/bluez/hci0",
+        "org.bluez.Adapter1",
+        "StartDiscovery",
+        None,
+        None,
+        Gio.DBusCallFlags.NONE,
+        -1,
+        None,
+    )
+
+    bus.signal_subscribe(
+        "org.bluez",
+        "org.freedesktop.DBus.Properties",
+        "PropertiesChanged",
+        None,
+        None,
+        Gio.DBusSignalFlags.NONE,
+        callback,
+        user_data,
+    )
+
+    loop = GLib.MainLoop()
+    loop.run()
+
+
+def callback(
+    connection,
+    sender_name,
+    object_path,
+    interface_name,
+    signal_name,
+    parameters,
+    user_data,
+):
+    for p in parameters:
+        if "ManufacturerData" in p:
+            mfdata = p["ManufacturerData"]
+            
+            if 0x0499 in mfdata:
+                rawdata = mfdata[0x499]
+
+                if len(rawdata) == 14 and rawdata[0] == 3:
+                    user_data["q"].put(
+                        {
+                            "format": "ruuvi3",
+                            "address": object_path[-17:].replace("_", ":"),
+                        }
+                    )
+                elif len(rawdata) == 24 and rawdata[0] == 5:
+                    user_data["q"].put(
+                        {
+                            "format": "ruuvi5",
+                            "address": object_path[-17:].replace("_", ":"),
+                        }
+                    )
+
+
+if __name__ == "__main__":
+    prompt()

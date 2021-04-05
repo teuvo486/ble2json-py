@@ -11,3 +11,5 @@ if [[ -e $TARGET ]] && ! [[ -e $LINK_NAME ]] ; then
 fi
 
 systemctl enable ble2json.service
+
+
