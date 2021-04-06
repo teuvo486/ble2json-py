@@ -1,3 +1,4 @@
+import re
 from flask import current_app
 from ble2json import db, defaults
 
@@ -8,24 +9,25 @@ def init(app):
 
         for dev in current_app.config.get("ADD_DEVICES", defaults.ADD_DEVICES):
             name = dev.get("name", None)
-            address = dev.get("address", None)
+            addr = validate_mac(dev.get("address", None))
             fmt = dev.get("format", None)
 
-            if name and address and fmt:
-                obj_path = "/org/bluez/hci0/dev_" + address.replace(":", "_")
+            if name and addr and fmt:
+                obj_path = "/org/bluez/hci0/dev_" + addr.replace(":", "_")
 
                 conn.execute(
                     """INSERT INTO device (name, address, objPath, format)
                        VALUES (?, ?, ?, ?)
                        ON CONFLICT (address)
                        DO UPDATE SET name = excluded.name, format = excluded.format""",
-                    (name, address, obj_path, fmt),
+                    (name, addr, obj_path, fmt),
                 )
 
         conn.commit()
         
         for addr in current_app.config.get("DELETE_DEVICES", defaults.DELETE_DEVICES):
-            conn.execute("DELETE FROM device WHERE address = ?", (addr,))
+            address = validate_mac(addr)
+            conn.execute("DELETE FROM device WHERE address = ?", (address,))
         
         conn.commit()
 
@@ -63,3 +65,12 @@ def get_one(name, start, end, cols):
         dev["sensorData"] = sensordata.get(dev_id, fmt, start, end, cols)
 
     return dev
+    
+
+def validate_mac(addr):
+    if addr and re.match("^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$", addr):
+        return addr.upper()
+
+    
+    
+    
