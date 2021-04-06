@@ -17,7 +17,8 @@ def init(app):
                 conn.execute(
                     """INSERT INTO device (name, address, objPath, format)
                        VALUES (?, ?, ?, ?)
-                       ON CONFLICT DO NOTHING""",
+                       ON CONFLICT (address)
+                       DO UPDATE SET name = excluded.name, format = excluded.format""",
                     (name, address, obj_path, fmt),
                 )
 
