@@ -1,0 +1,14 @@
+[Unit]
+Description=uWSGI service for ble2json
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/usr/var/ble2json-instance
+ExecStart=/usr/bin/uwsgi --ini ble2json.ini
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
