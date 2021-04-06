@@ -20,5 +20,5 @@ CREATE TABLE IF NOT EXISTS data (
     txPower INTEGER,
     movementCounter INTEGER,
     measurementSequence INTEGER,
-    FOREIGN KEY (deviceId) REFERENCES device (id)
+    FOREIGN KEY (deviceId) REFERENCES device (id) ON DELETE CASCADE
 );

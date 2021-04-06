@@ -1,12 +1,12 @@
 from flask import current_app
-from ble2json import db
+from ble2json import db, defaults
 
 
 def init(app):
     with app.app_context():
         conn = db.get_conn()
 
-        for dev in current_app.config.get("DEVICES", []):
+        for dev in current_app.config.get("ADD_DEVICES", defaults.ADD_DEVICES):
             name = dev.get("name", None)
             address = dev.get("address", None)
             fmt = dev.get("format", None)
@@ -22,6 +22,11 @@ def init(app):
                     (name, address, obj_path, fmt),
                 )
 
+        conn.commit()
+        
+        for addr in current_app.config.get("DELETE_DEVICES", defaults.DELETE_DEVICES):
+            conn.execute("DELETE FROM device WHERE address = ?", (addr,))
+        
         conn.commit()
 
 

@@ -25,11 +25,11 @@ def run():
     except (FileNotFoundError, JSONDecodeError):
         d = {}
 
-    if not d.get("DEVICES"):
-        d["DEVICES"] = []
+    if not d.get("ADD_DEVICES"):
+        d["ADD_DEVICES"] = []
 
     try:
-        scan(d["DEVICES"])
+        scan(d["ADD_DEVICES"])
     except KeyboardInterrupt:
         with open(CONFIG_PATH, "w", encoding="utf-8") as f:
             json.dump(d, f, indent=4)

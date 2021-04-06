@@ -2,8 +2,16 @@ Configuration
 =============
 
 The config.json file should be placed in the 
-[Flask instance folder](https://flask.palletsprojects.com/en/1.1.x/config/#instance-folders).
+[Flask instance folder](https://flask.palletsprojects.com/en/1.1.x/config/#instance-folders),
+which defaults to `/usr/var/ble2json-instance`.
 All keys are case-sensitive.
+
+"ADD_DEVICES": [object]
+-------------------
+
+BLE devices to be added into the database. An array of objects with required "name", 
+"address", and "format" keys. Entries with a duplicate address update the existing row's
+name and format. Duplicate names are a fatal error. Defaults to `[]`.
 
 "CLEANUP_INTERVAL": object
 -----------------------
@@ -13,10 +21,11 @@ An object that gets converted into a
 [datetime.timedelta](https://docs.python.org/3.8/library/datetime.html#datetime.timedelta) 
 instance; see the link for allowed keys. Defaults to `{"hours": 6}`. 
 
-"DEVICES": [object]
+"DELETE_DEVICES": [string]
 -------------------
 
-Devices to add into the database. Array of objects with "name", "address", and "format" keys.
+BLE devices to be deleted from the database. An array of strings corresponding to the 
+address of an existing device. Defaults to `[]`.
 
 "MAX_AGE": object
 -----------------
@@ -41,15 +50,17 @@ If `false`, write it in temporary storage under `/dev/shm`. Defaults to `false`.
 Minimum time between data points from the same device.
 Same format as in `CLEANUP_INTERVAL` and `MAX_AGE`. Defaults to `{"minutes": 5}`.
 
+"TESTING": boolean
+------------------
+
+Populate the database with test data; skip adding and deleting devices.
+Defaults to `false`.
+
 Full config example:
 ===================
 
     {
-        "CLEANUP_INTERVAL": {
-            "days": 1
-        },
-        
-        "DEVICES": [
+        "ADD_DEVICES": [
             { 
                 "name": "example1",
                 "address": "00:00:00:00:00:01",
@@ -61,6 +72,15 @@ Full config example:
                 "format": "ruuvi5"
             }
         ],
+
+        "CLEANUP_INTERVAL": {
+            "hours": 12
+        },
+
+        "DELETE_DEVICES": [
+            "00:00:00:00:00:00",
+            "FF:FF:FF:FF:FF:FF"
+        ],
         
         "MAX_AGE": {
             "weeks": 52
@@ -71,6 +91,8 @@ Full config example:
         "PERSISTENT": true,
         
         "RATE_LIMIT": {
-            "minutes": 30
-        }
+            "minutes": 10
+        },
+        
+        "TESTING": false,
     }

@@ -1,6 +1,8 @@
+ADD_DEVICES = []
+
 CLEANUP_INTERVAL = {"hours": 6}
 
-DEVICES = []
+DELETE_DEVICES = []
 
 MAX_AGE = {"weeks": 10}
 
