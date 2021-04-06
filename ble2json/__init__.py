@@ -19,7 +19,7 @@ def create_app():
     if app.config.get("PERSISTENT"):
         app.config["DB_PATH"] = app.instance_path + "/ble2json.db"
     else:
-        app.config["DB_PATH"] = "/dev/shm/ble2json.db"
+        app.config["DB_PATH"] = "/run/ble2json/ble2json.db"
 
     app.register_blueprint(router.bp)
     
