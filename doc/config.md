@@ -10,8 +10,10 @@ All keys are case-sensitive.
 -------------------
 
 BLE devices to be added into the database. An array of objects with required "name", 
-"address", and "format" keys. Entries with a duplicate address update the existing row's
-name and format. Duplicate names are a fatal error. Defaults to `[]`.
+"address", and "format" keys; "name" can be any string, "address" must be a colon-separated
+MAC address, and "format" can be "ruuvi3" or "ruuvi5" (as of v. 0.1). Entries with a 
+duplicate address update the existing device's name and format. Duplicate names are a fatal
+error. Defaults to `[]`.
 
 "CLEANUP_INTERVAL": object
 -----------------------
@@ -42,7 +44,7 @@ Do not run the listener thread (for testing purposes). Defaults to `false`.
 ---------------------
 
 If `true`, write the db file in the instance folder, where it persists between reboots. 
-If `false`, write it in temporary storage under `/dev/shm`. Defaults to `false`.
+If `false`, write it in the temporary folder `/run/ble2json`. Defaults to `false`.
 
 "RATE_LIMIT": object
 -----------------
