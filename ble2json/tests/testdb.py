@@ -10,7 +10,8 @@ FMT = "ruuvi5"
 START = int((datetime.now() - timedelta(days=365)).timestamp())
 END = int(datetime.now().timestamp())
 DELTA = int(timedelta(minutes=5).total_seconds())
-    
+
+
 def generate(db_path):
     conn = db.connect(db_path)
 
@@ -22,11 +23,12 @@ def generate(db_path):
     )
 
     conn.commit()
-        
+
     conn.executemany(
         """INSERT INTO data
            VALUES ((SELECT id FROM device WHERE objPath = ?), 
-           ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", generator()
+           ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        generator(),
     )
 
     conn.commit()
@@ -59,7 +61,7 @@ def test_data(time):
         0,
     )
 
-    data = ruuvi5.from_bytes(b)    
+    data = ruuvi5.from_bytes(b)
 
     return (
         OBJ_PATH,
@@ -75,4 +77,3 @@ def test_data(time):
         data.get("movementCounter"),
         data.get("measurementSequence"),
     )
-    

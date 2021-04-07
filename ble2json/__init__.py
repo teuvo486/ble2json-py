@@ -13,7 +13,7 @@ def create_app():
         pass
 
     app.config.from_object(defaults)
-    
+
     app.config.from_json("config.json", silent=True)
 
     if app.config.get("PERSISTENT"):
@@ -22,9 +22,9 @@ def create_app():
         app.config["DB_PATH"] = "/run/ble2json/ble2json.db"
 
     app.register_blueprint(router.bp)
-    
+
     db.init(app)
-    
+
     if app.config.get("TESTING"):
         testdb.generate(app.config["DB_PATH"])
     else:

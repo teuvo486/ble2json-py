@@ -12,7 +12,9 @@ def init(app):
             db_path = current_app.config["DB_PATH"]
 
             max_age_dict = current_app.config.get("MAX_AGE", defaults.MAX_AGE)
-            delay_dict = current_app.config.get("CLEANUP_INTERVAL", defaults.CLEANUP_INTERVAL)
+            delay_dict = current_app.config.get(
+                "CLEANUP_INTERVAL", defaults.CLEANUP_INTERVAL
+            )
 
             max_age = get_timedelta(max_age_dict)
             delay = get_timedelta(delay_dict)

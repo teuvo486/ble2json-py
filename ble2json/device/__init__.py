@@ -24,11 +24,11 @@ def init(app):
                 )
 
         conn.commit()
-        
+
         for addr in current_app.config.get("DELETE_DEVICES", defaults.DELETE_DEVICES):
             address = validate_mac(addr)
             conn.execute("DELETE FROM device WHERE address = ?", (address,))
-        
+
         conn.commit()
 
 
@@ -65,12 +65,8 @@ def get_one(name, start, end, cols):
         dev["sensorData"] = sensordata.get(dev_id, fmt, start, end, cols)
 
     return dev
-    
+
 
 def validate_mac(addr):
     if addr and re.match("^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$", addr):
         return addr.upper()
-
-    
-    
-    

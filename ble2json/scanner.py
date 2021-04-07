@@ -6,6 +6,7 @@ from gi.repository import GLib, Gio
 
 CONFIG_PATH = "/usr/var/ble2json-instance/config.json"
 
+
 def prompt():
     while True:
         i = input("Would you like to scan for BLE devices now? [y/n]\n> ").lower()
@@ -127,7 +128,7 @@ def callback(
     for p in parameters:
         if "ManufacturerData" in p:
             mfdata = p["ManufacturerData"]
-            
+
             if 0x0499 in mfdata:
                 rawdata = mfdata[0x499]
 

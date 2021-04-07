@@ -91,7 +91,7 @@ def insert(db_path, obj_path, rate_limit, time, mfdata):
 
 def get(dev_id, fmt, start, end, cols):
     mod = get_mod(fmt)
-    
+
     print(cols)
 
     if not cols:
@@ -116,7 +116,7 @@ def get_mod(fmt):
 
 def get_latest(dev_id, validate_me):
     conn = db.get_conn()
-    
+
     cols = validate_columns(validate_me)
 
     return conn.execute(
@@ -134,7 +134,7 @@ def get_latest(dev_id, validate_me):
 
 def get_interval(dev_id, start, end, validate_me):
     conn = db.get_conn()
-    
+
     cols = validate_columns(validate_me)
 
     return conn.execute(
