@@ -17,7 +17,7 @@ Instructions
   1. Download the latest package from the [releases page](https://github.com/teuvo486/ble2json-py/releases),
   **or** run the following command:
   
-    `curl --proto =https -L -O https://github.com/teuvo486/ble2json-py/releases/download/v0.1.0/ble2json_0.1.0-1_all.deb`
+    curl --proto =https -L -O https://github.com/teuvo486/ble2json-py/releases/download/v0.1.0/ble2json_0.1.0-1_all.deb
 
   2. Change to the folder with the downloaded package and run 
   `sudo apt install ./ble2json_0.1.0-1_all.deb`. (If installing on x86, you should run the
