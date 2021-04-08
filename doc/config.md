@@ -52,7 +52,7 @@ If `false`, write it in the temporary folder `/run/ble2json`. Defaults to `false
 Minimum time between data points from the same device.
 Same format as in `CLEANUP_INTERVAL` and `MAX_AGE`. Defaults to `{"minutes": 5}`.
 
-"TESTING": boolean
+"TEST_DB": boolean
 ------------------
 
 Populate the database with test data; skip adding and deleting devices.
@@ -96,5 +96,5 @@ Full config example:
             "minutes": 10
         },
         
-        "TESTING": false,
+        "TEST_DB": false,
     }

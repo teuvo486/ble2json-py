@@ -14,7 +14,7 @@ DELTA = int(timedelta(minutes=5).total_seconds())
 
 def generate(db_path):
     conn = db.connect(db_path)
-    
+
     count = conn.execute("SELECT COUNT(time) as num FROM data").fetchall()[0].get("num")
 
     if not count:
@@ -35,7 +35,7 @@ def generate(db_path):
         )
 
         conn.commit()
-        
+
     conn.close()
 
 
