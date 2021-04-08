@@ -8,7 +8,7 @@ def init(app):
         conn = db.get_conn()
 
         for dev in current_app.config.get("ADD_DEVICES", defaults.ADD_DEVICES):
-            name = dev.get("name")
+            name = dev.get("name").lower()
             addr = validate_mac(dev.get("address"))
             fmt = dev.get("format")
 

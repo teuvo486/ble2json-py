@@ -20,7 +20,7 @@ def get_one(name):
     start = request.args.get("start")
     end = request.args.get("end")
     cols = request.args.get("columns")
-    dev = device.get_one(name, start, end, cols)
+    dev = device.get_one(name.lower(), start, end, cols)
 
     if not dev:
         abort(404)
