@@ -14,24 +14,28 @@ DELTA = int(timedelta(minutes=5).total_seconds())
 
 def generate(db_path):
     conn = db.connect(db_path)
+    
+    count = conn.execute("SELECT COUNT(time) as num FROM data").fetchall()[0].get("num")
 
-    conn.execute(
-        """INSERT INTO device (name, address, objPath, format)
-           VALUES (?, ?, ?, ?)
-           ON CONFLICT DO NOTHING""",
-        (NAME, ADDR, OBJ_PATH, FMT),
-    )
+    if not count:
+        conn.execute(
+            """INSERT INTO device (name, address, objPath, format)
+               VALUES (?, ?, ?, ?)
+               ON CONFLICT DO NOTHING""",
+            (NAME, ADDR, OBJ_PATH, FMT),
+        )
 
-    conn.commit()
+        conn.commit()
 
-    conn.executemany(
-        """INSERT INTO data
-           VALUES ((SELECT id FROM device WHERE objPath = ?), 
-           ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        generator(),
-    )
+        conn.executemany(
+            """INSERT INTO data
+               VALUES ((SELECT id FROM device WHERE objPath = ?), 
+               ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            generator(),
+        )
 
-    conn.commit()
+        conn.commit()
+        
     conn.close()
 
 
