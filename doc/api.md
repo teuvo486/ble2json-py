@@ -1,7 +1,7 @@
 Endpoints
 =========
 
-"/"
+/
 ---
 
 Return the specified columns from the specified time interval from each device.
@@ -55,7 +55,7 @@ which is always included in the output.
         ...
     ]
 
-"/\<name\>"
+/\<name\>
 -----------
 
 Return the device with matching name.
@@ -81,4 +81,27 @@ Accepts the same parameters as above.
     }
 
 
+/errors
+--------
+
+Return all logged errors from the database.
+
+
+**Example request:**
+
+    GET /errors HTTP/1.1
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    ...
+    [
+        {
+            "code":500,
+            "description":"Invalid JSON syntax in config file",
+            "name":"Config Error",
+            "time":"2021-04-10T14:54:23Z"
+        }
+        ...
+    ]
 

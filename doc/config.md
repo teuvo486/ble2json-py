@@ -10,8 +10,8 @@ All keys are case-sensitive.
 -------------------
 
 BLE devices to be added into the database. An array of objects with required "name", 
-"address", and "format" keys; "name" can be any string, "address" must be a colon-separated
-MAC address, and "format" can be "ruuvi3" or "ruuvi5" (as of v. 0.1). Entries with a 
+"address", and "format" keys; "name" can be any string except "errors", "address" must be a colon-separated
+MAC address, and "format" can be "ruuvi3" or "ruuvi5" (as of v0.2.0). Entries with a 
 duplicate address update the existing device's name and format. Duplicate names are a fatal
 error. Defaults to `[]`.
 

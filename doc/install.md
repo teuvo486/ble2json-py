@@ -17,10 +17,10 @@ Instructions
   1. Download the latest package from the [releases page](https://github.com/teuvo486/ble2json-py/releases),
   **or** run the following command:
   
-    curl --proto =https -L -O https://github.com/teuvo486/ble2json-py/releases/download/v0.1.0/ble2json_0.1.0-1_all.deb
+    curl --proto =https -L -O https://github.com/teuvo486/ble2json-py/releases/download/v0.2.0/ble2json_0.2.0-1_all.deb
 
   2. Change to the folder with the downloaded package and run 
-  `sudo apt install ./ble2json_0.1.0-1_all.deb`. (If installing on x86, you should run the
+  `sudo apt install ./ble2json_0.2.0-1_all.deb`. (If installing on x86, you should run the
   command with `--no-install-recommends` to prevent `apt` from complaining about a missing dependency.)
 
   3. Run `sudo python3 -m ble2json.scanner` and name the discovered devices, **or** write the 
