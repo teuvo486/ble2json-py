@@ -14,6 +14,12 @@ def get_all():
     return jsonify(devs)
 
 
+@bp.route("/errors", methods=["GET"])
+def get_errors():
+    errors = error.get_all()
+    return jsonify(errors)
+
+
 @bp.route("/<name>", methods=["GET"])
 def get_one(name):
     error.check()

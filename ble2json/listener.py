@@ -25,11 +25,7 @@ def init(app):
             )
 
             if "org.bluez" not in names[0]:
-                error.log(
-                    500,
-                    "BlueZ Error",
-                    "The BlueZ service is unreachable on the system bus.",
-                )
+                error.log(500, "Bluetooth Error", "The BlueZ service is not running")
                 return None
 
             user_data = {
@@ -84,8 +80,8 @@ def listen(user_data):
         error.log_no_context(
             user_data["db_path"],
             500,
-            "DBus Error",
-            "Connection to the system bus was lost.",
+            "Bluetooth Error",
+            "Could not listen for Bluetooth events",
         )
 
 
@@ -113,4 +109,4 @@ def callback(
                 )
 
     except Exception as e:
-        print(e)
+        error.log_no_context(user_data["db_path"], 200, "Bluetooth Error", str(e))
