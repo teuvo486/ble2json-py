@@ -1,4 +1,5 @@
 import re
+from sqlite3 import IntegrityError
 from flask import current_app
 from ble2json import db, error
 
@@ -8,31 +9,29 @@ def init(app):
         conn = db.get_conn()
 
         for dev in current_app.config.get("ADD_DEVICES"):
-            name = validate_name(dev.get("name"))
-            addr = validate_mac(dev.get("address"))
-            fmt = validate_fmt(dev.get("format"))
+            name = dev.get("name").lower()
+            addr = dev.get("address").upper()
+            fmt = dev.get("format")
 
             if name and addr and fmt:
                 obj_path = "/org/bluez/hci0/dev_" + addr.replace(":", "_")
 
-                conn.execute(
-                    """INSERT INTO device (name, address, objPath, format)
-                       VALUES (?, ?, ?, ?)
-                       ON CONFLICT (address)
-                       DO UPDATE SET name = excluded.name, format = excluded.format""",
-                    (name, addr, obj_path, fmt),
-                )
-            else:
-                error.log(
-                    500,
-                    "Config Error",
-                    f"Device {name} is missing required properties.",
-                )
+                try:
+                    conn.execute(
+                        """INSERT INTO device (name, address, objPath, format)
+                           VALUES (?, ?, ?, ?)
+                           ON CONFLICT (address)
+                           DO UPDATE SET name = excluded.name, format = excluded.format""",
+                        (name, addr, obj_path, fmt),
+                    )
+                except IntegrityError:
+                    error.log(500, "Config Error", f"Duplicate device name '{name}'")
+                    return None
 
         conn.commit()
 
         for addr in current_app.config.get("DELETE_DEVICES"):
-            address = validate_mac(addr)
+            address = addr.upper()
             conn.execute("DELETE FROM device WHERE address = ?", (address,))
 
         conn.commit()
@@ -71,24 +70,3 @@ def get_one(name, start, end, cols):
         dev["sensorData"] = sensordata.get(dev_id, fmt, start, end, cols)
 
     return dev
-
-
-def validate_name(name):
-    if isinstance(name, str):
-        return name.lower()
-
-    error.log(500, "Config Error", f"Invalid device name {name}.")
-
-
-def validate_mac(addr):
-    if addr and re.match("^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$", addr):
-        return addr.upper()
-
-    error.log(500, "Config Error", f"Invalid MAC address {addr}.")
-
-
-def validate_fmt(fmt):
-    if fmt == "ruuvi3" or fmt == "ruuvi5":
-        return fmt
-
-    error.log(500, "Config Error", f"Invalid format {fmt}.")

@@ -6,20 +6,11 @@ from .tests import testdb
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
-    config_failed = config.load(app)
-
-    if app.config.get("PERSISTENT") == True:
-        app.config["DB_PATH"] = app.instance_path + "/ble2json.db"
-    else:
-        app.config["DB_PATH"] = "/run/ble2json/ble2json.db"
-
     app.register_blueprint(router.bp)
+    load_ok = config.load(app)
     db.init(app)
 
-    if config_failed:
-        with app.app_context():
-            error.log(500, "Config Error", "Invalid JSON syntax in config file.")
-
+    if not config.validate(load_ok, app):
         return app
 
     if not app.config.get("TEST_DB") == True:
