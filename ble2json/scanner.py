@@ -108,7 +108,18 @@ def listen(user_data):
         None,
         None,
         Gio.DBusSignalFlags.NONE,
-        callback,
+        callback1,
+        user_data,
+    )
+
+    bus.signal_subscribe(
+        "org.bluez",
+        "org.freedesktop.DBus.Properties",
+        "PropertiesChanged",
+        None,
+        None,
+        Gio.DBusSignalFlags.NONE,
+        callback2,
         user_data,
     )
 
@@ -116,7 +127,28 @@ def listen(user_data):
     loop.run()
 
 
-def callback(
+def callback1(
+    connection,
+    sender_name,
+    object_path,
+    interface_name,
+    signal_name,
+    parameters,
+    user_data,
+):
+    for p in parameters:
+        if "org.bluez.Device1" in p:
+            d1 = p["org.bluez.Device1"]
+
+            if "ManufacturerData" in d1:
+                mfdata = d1["ManufacturerData"]
+
+                if 0x499 in mfdata:
+                    addr = d1["Address"]
+                    put_dev(user_data["q"], mfdata[0x499], addr)
+
+
+def callback2(
     connection,
     sender_name,
     object_path,
@@ -129,23 +161,16 @@ def callback(
         if "ManufacturerData" in p:
             mfdata = p["ManufacturerData"]
 
-            if 0x0499 in mfdata:
-                rawdata = mfdata[0x499]
+            if 0x499 in mfdata:
+                addr = object_path[-17:].replace("_", ":")
+                put_dev(user_data["q"], mfdata[0x499], addr)
 
-                if len(rawdata) == 14 and rawdata[0] == 3:
-                    user_data["q"].put(
-                        {
-                            "format": "ruuvi3",
-                            "address": object_path[-17:].replace("_", ":"),
-                        }
-                    )
-                elif len(rawdata) == 24 and rawdata[0] == 5:
-                    user_data["q"].put(
-                        {
-                            "format": "ruuvi5",
-                            "address": object_path[-17:].replace("_", ":"),
-                        }
-                    )
+
+def put_dev(q, rawdata, addr):
+    if len(rawdata) == 14 and rawdata[0] == 3:
+        q.put({"format": "ruuvi3", "address": addr})
+    elif len(rawdata) == 24 and rawdata[0] == 5:
+        q.put({"format": "ruuvi5", "address": addr})
 
 
 if __name__ == "__main__":
