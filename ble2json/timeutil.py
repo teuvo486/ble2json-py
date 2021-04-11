@@ -1,3 +1,5 @@
+import re
+from flask import abort
 from datetime import date, time, datetime, timedelta
 
 ALIASES = ["epoch", "now", "day", "week", "month", "year"]
@@ -20,11 +22,15 @@ def get_datetimes(start, end):
         start = resolve_alias("epoch")
     elif start in ALIASES:
         start = resolve_alias(start)
+    else:
+        start = validatetime(start)
 
     if not end:
         end = resolve_alias("now")
     elif end in ALIASES:
         end = resolve_alias(end)
+    else:
+        end = validatetime(end)
 
     return start, end
 
@@ -46,3 +52,12 @@ def resolve_alias(a):
         d = date.today().replace(day=1, month=1)
 
     return datetime.combine(d, time()).isoformat(timespec="seconds")
+    
+    
+def validatetime(s):
+    if not re.match("^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$", s, re.A):
+        abort(400)
+    
+    return s
+
+    

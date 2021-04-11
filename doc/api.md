@@ -9,9 +9,10 @@ With no parameters, return the latest values of all columns from each device.
 
 **Parameters:**
 
-"start": ISO 8601 string or a time alias. Defaults to "epoch" if "end" is set.
+"start": Date-time string of the format YYYY-MM-DDThh:mm:ss(.sss)Z, or a time alias (see below). 
+Defaults to "epoch" if "end" is set.
 
-"end": ISO 8601 string or a time alias. Defaults to "now" if "start" is set.
+"end": Same format as above. Defaults to "now" if "start" is set.
 
 "columns": Comma-separated list of valid column names, excluding "time", 
 which is always included in the output.

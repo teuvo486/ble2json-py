@@ -26,4 +26,5 @@ Instructions
   3. Run `sudo python3 -m ble2json.scanner` and name the discovered devices, **or** write the 
   [config file](https://github.com/teuvo486/ble2json-py/blob/main/doc/config.md) manually. 
  
-  4. Reboot your computer and the app should be running.
+  4. Reboot your computer and the app should be running. If not, see
+  [troubleshooting.](https://github.com/teuvo486/ble2json-py/blob/main/doc/troubleshooting.md)
