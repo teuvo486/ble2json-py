@@ -43,8 +43,10 @@ Do not run the listener thread (for testing purposes). Defaults to `false`.
 "PERSISTENT": boolean
 ---------------------
 
-If `true`, write the db file in the instance folder, where it persists between reboots. 
-If `false`, write it in the temporary folder `/run/ble2json`. Defaults to `false`.
+If `true`, the db file is stored on disk in the instance folder, where it persists 
+between reboots. If `false`, the db file is stored in memory in the temporary folder /run/ble2json.
+The latter option is recommended for devices with SD card storage, such as RasPi.
+Defaults to `false`.
 
 "RATE_LIMIT": object
 -----------------

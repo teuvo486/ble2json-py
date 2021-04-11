@@ -62,7 +62,7 @@ def validate(load_ok, app):
 
 
 def valid_name(name):
-    if isinstance(name, str):
+    if isinstance(name, str) and name != "errors":
         return True
 
     error.log(500, "Config Error", f"Invalid device name '{name}'")

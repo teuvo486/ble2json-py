@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.1 (2021-04-11)
+------------------
+  * Return status 400 on invalid date strings
+  * Make the scanner respond faster
+
 0.2.0 (2021-04-10)
 ------------------    
    * Error logging and messages

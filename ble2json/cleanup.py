@@ -2,7 +2,7 @@ import time
 from threading import Thread
 from datetime import datetime
 from flask import current_app
-from . import db
+from . import db, error
 from .timeutil import get_timedelta
 
 
@@ -22,7 +22,7 @@ def init(app):
                 thread.start()
 
     except Exception as e:
-        print(e)
+        error.log_no_context(db_path, 500, "Cleanup Error", str(e))
 
 
 def cleanup(db_path, max_age, delay):
@@ -36,4 +36,4 @@ def cleanup(db_path, max_age, delay):
             conn.close()
 
     except Exception as e:
-        print(e)
+        error.log_no_context(db_path, 500, "Cleanup Error", str(e))
