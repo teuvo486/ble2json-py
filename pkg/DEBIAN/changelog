@@ -1,3 +1,10 @@
+ble2json (0.2.1-1) UNRELEASED; urgency=medium
+
+  * New release. (Closes: #XXXXXX)
+
+ -- teuvo486 Sun, 11 Apr 2021 19:18:42 +0200
+
+
 ble2json (0.2.0-1) UNRELEASED; urgency=medium
 
   * New release. (Closes: #XXXXXX)
