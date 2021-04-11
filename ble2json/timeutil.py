@@ -52,12 +52,10 @@ def resolve_alias(a):
         d = date.today().replace(day=1, month=1)
 
     return datetime.combine(d, time()).isoformat(timespec="seconds")
-    
-    
+
+
 def validatetime(s):
     if not re.match("^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$", s, re.A):
         abort(400)
-    
-    return s
 
-    
+    return s

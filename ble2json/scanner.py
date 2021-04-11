@@ -103,8 +103,8 @@ def listen(user_data):
 
     bus.signal_subscribe(
         "org.bluez",
-        "org.freedesktop.DBus.Properties",
-        "PropertiesChanged",
+        "org.freedesktop.DBus.ObjectManager",
+        "InterfacesAdded",
         None,
         None,
         Gio.DBusSignalFlags.NONE,
