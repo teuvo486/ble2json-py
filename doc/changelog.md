@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.2.3 (2021-04-14)
+------------------
+  * Bugfix: PERSISTENT should default to False
+
 0.2.2 (2021-04-11)
 ------------------
   * More scanner fixes
