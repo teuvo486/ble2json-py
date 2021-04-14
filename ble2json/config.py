@@ -8,7 +8,7 @@ DEFAULTS = {
     "DELETE_DEVICES": [],
     "MAX_AGE": {"weeks": 10},
     "NO_LISTEN": False,
-    "PERSISTENT": True,
+    "PERSISTENT": False,
     "RATE_LIMIT": {"minutes": 5},
     "TEST_DB": False,
 }
